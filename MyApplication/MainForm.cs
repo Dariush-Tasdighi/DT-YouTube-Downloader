@@ -12,9 +12,19 @@ public partial class MainForm : Form
 		InitializeComponent();
 	}
 
+	private IList<YouTubeVideoItem> List = [];
+
 	private void Form_Load(object sender, EventArgs e)
 	{
 		downloadButton.Enabled = false;
+
+		myDataGridView.MultiSelect = false;
+
+		myDataGridView.SelectionMode =
+			DataGridViewSelectionMode.FullRowSelect;
+
+		myDataGridView.EditMode =
+			DataGridViewEditMode.EditProgrammatically;
 	}
 
 	private async void DetectButton_Click(object sender, EventArgs e)
@@ -22,7 +32,8 @@ public partial class MainForm : Form
 		detectButton.Enabled = false;
 		downloadButton.Enabled = false;
 
-		resolutionComboBox.Enabled = false;
+		myDataGridView.Enabled = false;
+		myDataGridView.DataSource = null;
 
 		targetPathTextBox.Enabled = false;
 		youTubeVideoIdTextBox.Enabled = false;
@@ -30,8 +41,7 @@ public partial class MainForm : Form
 
 		try
 		{
-			resolutionComboBox.Items.Clear();
-			resolutionComboBox.Items.Add(item: string.Empty);
+			List.Clear();
 
 			var youtube =
 				new YoutubeClient();
@@ -40,10 +50,6 @@ public partial class MainForm : Form
 				await
 				youtube.Videos.GetAsync
 				(videoId: youTubeVideoIdTextBox.Text);
-
-			var videoTitle = video.Title;
-			var channelId = video.Author.ChannelId;
-			var channelTitle = video.Author.ChannelTitle;
 
 			var streamManifest =
 				await
@@ -55,24 +61,44 @@ public partial class MainForm : Form
 
 			foreach (var stream in videoStreams)
 			{
-				var videoCodec = stream.VideoCodec;
-				var bitrate = stream.Bitrate.BitsPerSecond;
-				var size = $"{Math.Round(stream.Size.MegaBytes, 2)} MB";
+				var youTubeVideoItem =
+					new YouTubeVideoItem(video: video);
 
-				var containerName = stream.Container.Name;
-				var videoQualityLabel = stream.VideoQuality.Label;
-				var videoQualityFramerate = stream.VideoQuality.Framerate;
+				youTubeVideoItem.Update(stream);
 
-				var item =
-					$"{containerName} | {videoQualityLabel} | {videoQualityFramerate} | {size}";
-
-				if (containerName.ToLower() != "webm")
+				if (youTubeVideoItem.StreamContainerName != "webm")
 				{
-					resolutionComboBox.Items.Add(item: item);
+					List.Add(item: youTubeVideoItem);
 				}
 			}
 
 			downloadButton.Enabled = true;
+
+			myDataGridView.DataSource =
+				List
+				.OrderByDescending(current => current.StreamVideoQualityIsHighDefinition)
+				.ThenByDescending(current => current.StreamVideoQualityMaxHeight)
+				.ToList()
+				;
+
+			for (int columnIndex = 0; columnIndex <= myDataGridView.Columns.Count - 1; columnIndex++)
+			{
+				switch(columnIndex)
+				{
+					case 1:
+					{
+						break;
+					}
+
+					default:
+					{
+						myDataGridView.Columns[columnIndex].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+						break;
+					}
+				}
+			}
+
+			myDataGridView.Rows[0].Selected = true;
 
 			MessageBox.Show(text: "Finished.");
 		}
@@ -81,11 +107,17 @@ public partial class MainForm : Form
 			var errorMessage =
 				$"Error! - {ex.Message}";
 
+			if(ex.InnerException is not null)
+			{
+				errorMessage +=
+					$"{Environment.NewLine}{ex.InnerException.Message}";
+			}
+
 			MessageBox.Show(text: errorMessage);
 		}
 
 		detectButton.Enabled = true;
-		resolutionComboBox.Enabled = true;
+		myDataGridView.Enabled = true;
 
 		targetPathTextBox.Enabled = true;
 		youTubeVideoIdTextBox.Enabled = true;
@@ -94,10 +126,27 @@ public partial class MainForm : Form
 
 	private async void DownloadButton_Click(object sender, EventArgs e)
 	{
+		// **************************************************
+		if (myDataGridView.SelectedRows.Count == 0)
+		{
+			MessageBox.Show("Please select an item!");
+			return;
+		}
+
+		var selectedItem =
+			myDataGridView.Rows[myDataGridView.SelectedRows[0].Index].DataBoundItem
+			as YouTubeVideoItem;
+
+		if (selectedItem is null)
+		{
+			return;
+		}
+		// **************************************************
+
 		detectButton.Enabled = false;
 		downloadButton.Enabled = false;
+		myDataGridView.Enabled = false;
 		targetPathTextBox.Enabled = false;
-		resolutionComboBox.Enabled = false;
 		ffmpegPathNameTextBox.Enabled = false;
 		youTubeVideoIdTextBox.Enabled = false;
 
@@ -108,33 +157,6 @@ public partial class MainForm : Form
 				Directory.CreateDirectory(path: targetPathTextBox.Text);
 			}
 
-			// **************************************************
-			var selectedItem =
-				resolutionComboBox.SelectedItem;
-
-			if (selectedItem is null)
-			{
-				return;
-			}
-
-			var selectedItemString = selectedItem.ToString();
-
-			if (string.IsNullOrWhiteSpace(value: selectedItemString))
-			{
-				return;
-			}
-
-			selectedItemString =
-				selectedItemString.Replace(" ", string.Empty);
-
-			var selectedItems =
-				selectedItemString.Split('|');
-
-			var containerName = selectedItems[0];
-			var videoQualityLabel = selectedItems[1];
-			var videoQualityFramerate = Convert.ToInt32(selectedItems[2]);
-			// **************************************************
-
 			var youtube =
 				new YoutubeClient();
 
@@ -142,10 +164,6 @@ public partial class MainForm : Form
 				await
 				youtube.Videos.GetAsync
 				(videoId: youTubeVideoIdTextBox.Text);
-
-			var channelId = video.Author.ChannelId;
-			var videoTitle = FixText(value: video.Title);
-			var channelTitle = FixText(value: video.Author.ChannelTitle);
 
 			var streamManifest =
 				await
@@ -161,21 +179,15 @@ public partial class MainForm : Form
 			var videoStreamInfo = streamManifest
 				.GetVideoOnlyStreams()
 				.Where(current => current.Container == YoutubeExplode.Videos.Streams.Container.Mp4)
-				.Where(current => current.VideoQuality.Label == videoQualityLabel)
-				.Where(current => current.VideoQuality.Framerate == videoQualityFramerate)
+				.Where(current => current.VideoQuality.Label == selectedItem.StreamVideoQualityLabel)
+				.Where(current => current.VideoQuality.Framerate == selectedItem.StreamVideoQualityFramerate)
 				.First();
 
 			var streamInfos =
 				new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
 
-			var fileExtension =
-				videoStreamInfo.Container.Name.ToLower();
-
-			var fileName =
-				$"{channelId}_{channelTitle}_{videoTitle}_{videoQualityLabel}_{videoQualityFramerate}";
-
 			var videoFilePathName =
-				$"{targetPathTextBox.Text}\\{fileName}.{fileExtension}";
+				$"{targetPathTextBox.Text}\\{selectedItem.GetFileName()}.{selectedItem.StreamContainerName}";
 
 			var conversionRequestBuilder =
 				new ConversionRequestBuilder(outputFilePath: videoFilePathName);
@@ -199,7 +211,7 @@ public partial class MainForm : Form
 			if (trackInfo is not null)
 			{
 				var captionFilePathName =
-					$"{targetPathTextBox.Text}\\{fileName}.srt";
+					$"{targetPathTextBox.Text}\\{selectedItem.GetFileName()}.srt";
 
 				await youtube.Videos.ClosedCaptions.DownloadAsync
 					(trackInfo: trackInfo, filePath: captionFilePathName);
@@ -218,30 +230,9 @@ public partial class MainForm : Form
 
 		detectButton.Enabled = true;
 		downloadButton.Enabled = true;
+		myDataGridView.Enabled = true;
 		targetPathTextBox.Enabled = true;
-		resolutionComboBox.Enabled = true;
 		ffmpegPathNameTextBox.Enabled = true;
 		youTubeVideoIdTextBox.Enabled = true;
-	}
-
-	public static string FixText(string value)
-	{
-		value =
-			value
-			.Replace(oldValue: ":", newValue: " ")
-			.Replace(oldValue: "/", newValue: " ")
-			.Replace(oldValue: "\\", newValue: " ")
-			;
-
-		value = value.Trim();
-
-		while(value.Contains("  "))
-		{
-			value =
-				value
-				.Replace(oldValue: "  ", newValue: " ");
-		}
-
-		return value;
 	}
 }
