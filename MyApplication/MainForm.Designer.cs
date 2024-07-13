@@ -34,8 +34,11 @@ partial class MainForm
 		myMenuStrip = new MenuStrip();
 		detailsPanel = new Panel();
 		footerPanel = new Panel();
+		videoTitleTextBox = new TextBox();
 		gridViewPanel = new Panel();
 		myDataGridView = new DataGridView();
+		downloadVideoCheckBox = new CheckBox();
+		downloadCaptionCheckBox = new CheckBox();
 		headerPanel.SuspendLayout();
 		footerPanel.SuspendLayout();
 		gridViewPanel.SuspendLayout();
@@ -44,10 +47,10 @@ partial class MainForm
 		// 
 		// downloadButton
 		// 
-		downloadButton.Location = new Point(3, 6);
+		downloadButton.Location = new Point(177, 6);
 		downloadButton.Name = "downloadButton";
 		downloadButton.Size = new Size(151, 29);
-		downloadButton.TabIndex = 0;
+		downloadButton.TabIndex = 2;
 		downloadButton.Text = "&2 - Download";
 		downloadButton.UseVisualStyleBackColor = true;
 		downloadButton.Click += DownloadButton_Click;
@@ -57,7 +60,7 @@ partial class MainForm
 		targetPathTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 		targetPathTextBox.Location = new Point(147, 3);
 		targetPathTextBox.Name = "targetPathTextBox";
-		targetPathTextBox.Size = new Size(1317, 27);
+		targetPathTextBox.Size = new Size(1157, 27);
 		targetPathTextBox.TabIndex = 1;
 		targetPathTextBox.Text = "D:\\YouTubeDownloads";
 		// 
@@ -66,9 +69,11 @@ partial class MainForm
 		youTubeVideoIdTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 		youTubeVideoIdTextBox.Location = new Point(147, 69);
 		youTubeVideoIdTextBox.Name = "youTubeVideoIdTextBox";
-		youTubeVideoIdTextBox.Size = new Size(1317, 27);
+		youTubeVideoIdTextBox.Size = new Size(1157, 27);
 		youTubeVideoIdTextBox.TabIndex = 5;
-		youTubeVideoIdTextBox.Text = "https://youtube.com/watch?v=u_yIGGhubZs";
+		youTubeVideoIdTextBox.TextChanged += YouTubeVideoIdTextBox_TextChanged;
+		youTubeVideoIdTextBox.DoubleClick += YouTubeVideoIdTextBox_DoubleClick;
+		youTubeVideoIdTextBox.Enter += YouTubeVideoIdTextBox_Enter;
 		// 
 		// targetPathLabel
 		// 
@@ -112,7 +117,7 @@ partial class MainForm
 		ffmpegPathNameTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 		ffmpegPathNameTextBox.Location = new Point(147, 36);
 		ffmpegPathNameTextBox.Name = "ffmpegPathNameTextBox";
-		ffmpegPathNameTextBox.Size = new Size(1317, 27);
+		ffmpegPathNameTextBox.Size = new Size(1157, 27);
 		ffmpegPathNameTextBox.TabIndex = 3;
 		ffmpegPathNameTextBox.Text = "D:\\Download\\FFMpeg\\ffmpeg-windows-x64\\ffmpeg.exe";
 		// 
@@ -128,7 +133,7 @@ partial class MainForm
 		headerPanel.Dock = DockStyle.Top;
 		headerPanel.Location = new Point(0, 24);
 		headerPanel.Name = "headerPanel";
-		headerPanel.Size = new Size(1467, 138);
+		headerPanel.Size = new Size(1307, 138);
 		headerPanel.TabIndex = 1;
 		// 
 		// myMenuStrip
@@ -136,7 +141,7 @@ partial class MainForm
 		myMenuStrip.ImageScalingSize = new Size(20, 20);
 		myMenuStrip.Location = new Point(0, 0);
 		myMenuStrip.Name = "myMenuStrip";
-		myMenuStrip.Size = new Size(1467, 24);
+		myMenuStrip.Size = new Size(1307, 24);
 		myMenuStrip.TabIndex = 0;
 		myMenuStrip.Text = "menuStrip1";
 		// 
@@ -145,17 +150,30 @@ partial class MainForm
 		detailsPanel.Dock = DockStyle.Top;
 		detailsPanel.Location = new Point(0, 162);
 		detailsPanel.Name = "detailsPanel";
-		detailsPanel.Size = new Size(1467, 13);
+		detailsPanel.Size = new Size(1307, 13);
 		detailsPanel.TabIndex = 2;
 		// 
 		// footerPanel
 		// 
+		footerPanel.Controls.Add(downloadCaptionCheckBox);
+		footerPanel.Controls.Add(downloadVideoCheckBox);
+		footerPanel.Controls.Add(videoTitleTextBox);
 		footerPanel.Controls.Add(downloadButton);
 		footerPanel.Dock = DockStyle.Bottom;
-		footerPanel.Location = new Point(0, 450);
+		footerPanel.Location = new Point(0, 669);
 		footerPanel.Name = "footerPanel";
-		footerPanel.Size = new Size(1467, 41);
+		footerPanel.Size = new Size(1307, 41);
 		footerPanel.TabIndex = 3;
+		// 
+		// videoTitleTextBox
+		// 
+		videoTitleTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+		videoTitleTextBox.Location = new Point(334, 6);
+		videoTitleTextBox.Name = "videoTitleTextBox";
+		videoTitleTextBox.ReadOnly = true;
+		videoTitleTextBox.Size = new Size(961, 27);
+		videoTitleTextBox.TabIndex = 3;
+		videoTitleTextBox.Visible = false;
 		// 
 		// gridViewPanel
 		// 
@@ -163,7 +181,7 @@ partial class MainForm
 		gridViewPanel.Dock = DockStyle.Fill;
 		gridViewPanel.Location = new Point(0, 175);
 		gridViewPanel.Name = "gridViewPanel";
-		gridViewPanel.Size = new Size(1467, 275);
+		gridViewPanel.Size = new Size(1307, 494);
 		gridViewPanel.TabIndex = 13;
 		// 
 		// myDataGridView
@@ -173,14 +191,38 @@ partial class MainForm
 		myDataGridView.Location = new Point(0, 0);
 		myDataGridView.Name = "myDataGridView";
 		myDataGridView.RowHeadersWidth = 51;
-		myDataGridView.Size = new Size(1467, 275);
+		myDataGridView.Size = new Size(1307, 494);
 		myDataGridView.TabIndex = 0;
+		// 
+		// downloadVideoCheckBox
+		// 
+		downloadVideoCheckBox.AutoSize = true;
+		downloadVideoCheckBox.Checked = true;
+		downloadVideoCheckBox.CheckState = CheckState.Checked;
+		downloadVideoCheckBox.Location = new Point(12, 8);
+		downloadVideoCheckBox.Name = "downloadVideoCheckBox";
+		downloadVideoCheckBox.Size = new Size(70, 24);
+		downloadVideoCheckBox.TabIndex = 0;
+		downloadVideoCheckBox.Text = "Video";
+		downloadVideoCheckBox.UseVisualStyleBackColor = true;
+		// 
+		// downloadCaptionCheckBox
+		// 
+		downloadCaptionCheckBox.AutoSize = true;
+		downloadCaptionCheckBox.Checked = true;
+		downloadCaptionCheckBox.CheckState = CheckState.Checked;
+		downloadCaptionCheckBox.Location = new Point(88, 8);
+		downloadCaptionCheckBox.Name = "downloadCaptionCheckBox";
+		downloadCaptionCheckBox.Size = new Size(83, 24);
+		downloadCaptionCheckBox.TabIndex = 1;
+		downloadCaptionCheckBox.Text = "Caption";
+		downloadCaptionCheckBox.UseVisualStyleBackColor = true;
 		// 
 		// MainForm
 		// 
 		AutoScaleDimensions = new SizeF(8F, 20F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(1467, 491);
+		ClientSize = new Size(1307, 710);
 		Controls.Add(gridViewPanel);
 		Controls.Add(footerPanel);
 		Controls.Add(detailsPanel);
@@ -189,11 +231,12 @@ partial class MainForm
 		MainMenuStrip = myMenuStrip;
 		Name = "MainForm";
 		StartPosition = FormStartPosition.CenterScreen;
-		Text = "DT YouTube Downloader! - Version 2.1";
+		Text = "DT YouTube Downloader! - Version 2.2";
 		Load += Form_Load;
 		headerPanel.ResumeLayout(false);
 		headerPanel.PerformLayout();
 		footerPanel.ResumeLayout(false);
+		footerPanel.PerformLayout();
 		gridViewPanel.ResumeLayout(false);
 		((System.ComponentModel.ISupportInitialize)myDataGridView).EndInit();
 		ResumeLayout(false);
@@ -216,4 +259,7 @@ partial class MainForm
 	private Panel footerPanel;
 	private Panel gridViewPanel;
 	private DataGridView myDataGridView;
+	private TextBox videoTitleTextBox;
+	private CheckBox downloadCaptionCheckBox;
+	private CheckBox downloadVideoCheckBox;
 }

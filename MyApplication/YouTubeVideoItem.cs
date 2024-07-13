@@ -90,12 +90,6 @@ internal class YouTubeVideoItem : object
 	[DisplayName(displayName: "Likes")]
 	public long EngagementLikeCount { get; set; }
 
-	[DisplayName(displayName: "Dislikes")]
-	public long EngagementDislikeCount { get; set; }
-
-	[DisplayName(displayName: "Rating")]
-	public double EngagementAverageRating { get; set; }
-
 
 
 	[Browsable(browsable: false)]
@@ -103,6 +97,9 @@ internal class YouTubeVideoItem : object
 
 	[Browsable(browsable: false)]
 	public string? Url { get; set; }
+
+	[Browsable(browsable: false)]
+	public string? StreamUrl { get; set; }
 
 	[Browsable(browsable: false)]
 	public string? Description { get; set; }
@@ -114,16 +111,19 @@ internal class YouTubeVideoItem : object
 	public string? AuthorChannelUrl { get; set; }
 
 	[Browsable(browsable: false)]
-	public string? StreamUrl { get; set; }
-
-	[Browsable(browsable: false)]
 	public string? StreamVideoCodec { get; set; }
 
 	[Browsable(browsable: false)]
-	public long StreamBitrateBitsPerSecond { get; set; }
+	public long EngagementDislikeCount { get; set; }
 
 	[Browsable(browsable: false)]
 	public int StreamVideoResolutionArea { get; set; }
+
+	[Browsable(browsable: false)]
+	public double EngagementAverageRating { get; set; }
+
+	[Browsable(browsable: false)]
+	public long StreamBitrateBitsPerSecond { get; set; }
 
 	[Browsable(browsable: false)]
 	public string? StreamVideoQualityLabel { get; set; }
@@ -171,8 +171,18 @@ internal class YouTubeVideoItem : object
 
 		value =
 			value
+			.Replace(oldValue: "،", newValue: " ")
+			.Replace(oldValue: "؟", newValue: " ")
+
+			.Replace(oldValue: "'", newValue: " ")
+			.Replace(oldValue: "!", newValue: " ")
+			.Replace(oldValue: "?", newValue: " ")
+			.Replace(oldValue: "|", newValue: " ")
+			.Replace(oldValue: ";", newValue: " ")
 			.Replace(oldValue: ":", newValue: " ")
+			.Replace(oldValue: ",", newValue: " ")
 			.Replace(oldValue: "/", newValue: " ")
+			.Replace(oldValue: "\"", newValue: " ")
 			.Replace(oldValue: "\\", newValue: " ")
 			;
 

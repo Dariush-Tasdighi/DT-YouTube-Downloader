@@ -16,8 +16,14 @@ public partial class MainForm : Form
 
 	private void Form_Load(object sender, EventArgs e)
 	{
+		// **************************************************
 		downloadButton.Enabled = false;
 
+		downloadVideoCheckBox.Enabled = false;
+		downloadCaptionCheckBox.Enabled = false;
+		// **************************************************
+
+		// **************************************************
 		myDataGridView.MultiSelect = false;
 
 		myDataGridView.SelectionMode =
@@ -25,10 +31,40 @@ public partial class MainForm : Form
 
 		myDataGridView.EditMode =
 			DataGridViewEditMode.EditProgrammatically;
+		// **************************************************
+	}
+
+	private void YouTubeVideoIdTextBox_Enter(object sender, EventArgs e)
+	{
+		youTubeVideoIdTextBox.Select
+			(start: 0, length: youTubeVideoIdTextBox.Text.Length);
+	}
+
+	private void YouTubeVideoIdTextBox_DoubleClick(object sender, EventArgs e)
+	{
+		youTubeVideoIdTextBox.Text = Clipboard.GetText();
+
+		youTubeVideoIdTextBox.Select
+			(start: 0, length: youTubeVideoIdTextBox.Text.Length);
+	}
+
+	private void YouTubeVideoIdTextBox_TextChanged(object sender, EventArgs e)
+	{
+		List.Clear();
+		myDataGridView.DataSource = null;
 	}
 
 	private async void DetectButton_Click(object sender, EventArgs e)
 	{
+		if (string.IsNullOrWhiteSpace(youTubeVideoIdTextBox.Text))
+		{
+			MessageBox.Show
+				(text: "You did not specify YouTube video id!");
+
+			return;
+		}
+
+		// **************************************************
 		detectButton.Enabled = false;
 		downloadButton.Enabled = false;
 
@@ -38,6 +74,10 @@ public partial class MainForm : Form
 		targetPathTextBox.Enabled = false;
 		youTubeVideoIdTextBox.Enabled = false;
 		ffmpegPathNameTextBox.Enabled = false;
+
+		downloadVideoCheckBox.Enabled = false;
+		downloadCaptionCheckBox.Enabled = false;
+		// **************************************************
 
 		try
 		{
@@ -66,24 +106,29 @@ public partial class MainForm : Form
 
 				youTubeVideoItem.Update(stream);
 
-				if (youTubeVideoItem.StreamContainerName != "webm")
-				{
-					List.Add(item: youTubeVideoItem);
-				}
+				List.Add(item: youTubeVideoItem);
 			}
 
-			downloadButton.Enabled = true;
+			if (List.Count == 0)
+			{
+				MessageBox.Show
+					(text: "Something Wrong! Please try again...");
+
+				return;
+			}
 
 			myDataGridView.DataSource =
 				List
-				.OrderByDescending(current => current.StreamVideoQualityIsHighDefinition)
+				.OrderBy(current => current.StreamContainerName)
+				.ThenByDescending(current => current.StreamVideoQualityIsHighDefinition)
 				.ThenByDescending(current => current.StreamVideoQualityMaxHeight)
+				.ThenByDescending(current => current.StreamSizeMegaBytes)
 				.ToList()
 				;
 
 			for (int columnIndex = 0; columnIndex <= myDataGridView.Columns.Count - 1; columnIndex++)
 			{
-				switch(columnIndex)
+				switch (columnIndex)
 				{
 					case 1:
 					{
@@ -98,16 +143,19 @@ public partial class MainForm : Form
 				}
 			}
 
-			myDataGridView.Rows[0].Selected = true;
+			MessageBox.Show(text: "Detection Finished...");
 
-			MessageBox.Show(text: "Finished.");
+			downloadButton.Enabled = true;
+
+			myDataGridView.Rows[0].Selected = true;
+			myDataGridView.Focus();
 		}
 		catch (Exception ex)
 		{
 			var errorMessage =
 				$"Error! - {ex.Message}";
 
-			if(ex.InnerException is not null)
+			if (ex.InnerException is not null)
 			{
 				errorMessage +=
 					$"{Environment.NewLine}{ex.InnerException.Message}";
@@ -116,12 +164,17 @@ public partial class MainForm : Form
 			MessageBox.Show(text: errorMessage);
 		}
 
+		// **************************************************
 		detectButton.Enabled = true;
 		myDataGridView.Enabled = true;
 
 		targetPathTextBox.Enabled = true;
 		youTubeVideoIdTextBox.Enabled = true;
 		ffmpegPathNameTextBox.Enabled = true;
+
+		downloadVideoCheckBox.Enabled = true;
+		downloadCaptionCheckBox.Enabled = true;
+		// **************************************************
 	}
 
 	private async void DownloadButton_Click(object sender, EventArgs e)
@@ -129,7 +182,9 @@ public partial class MainForm : Form
 		// **************************************************
 		if (myDataGridView.SelectedRows.Count == 0)
 		{
-			MessageBox.Show("Please select an item!");
+			MessageBox.Show
+				(text: "Please select an item!");
+			
 			return;
 		}
 
@@ -143,12 +198,22 @@ public partial class MainForm : Form
 		}
 		// **************************************************
 
+		// **************************************************
+		videoTitleTextBox.Visible = true;
+		videoTitleTextBox.Text = selectedItem.Title;
+
 		detectButton.Enabled = false;
 		downloadButton.Enabled = false;
+
 		myDataGridView.Enabled = false;
+
 		targetPathTextBox.Enabled = false;
 		ffmpegPathNameTextBox.Enabled = false;
 		youTubeVideoIdTextBox.Enabled = false;
+
+		downloadVideoCheckBox.Enabled = false;
+		downloadCaptionCheckBox.Enabled = false;
+		// **************************************************
 
 		try
 		{
@@ -160,65 +225,78 @@ public partial class MainForm : Form
 			var youtube =
 				new YoutubeClient();
 
-			var video =
-				await
-				youtube.Videos.GetAsync
-				(videoId: youTubeVideoIdTextBox.Text);
+			if(downloadVideoCheckBox.Checked)
+			{
+				var videoFilePathName =
+					$"{targetPathTextBox.Text}\\{selectedItem.GetFileName()}.{selectedItem.StreamContainerName}";
 
-			var streamManifest =
-				await
-				youtube.Videos.Streams
-				.GetManifestAsync(videoId: youTubeVideoIdTextBox.Text);
+				if (File.Exists(path: videoFilePathName))
+				{
+					MessageBox.Show
+						(text: "This movie is already exist!");
+				}
+				else
+				{
+					var streamManifest =
+						await
+						youtube.Videos.Streams
+						.GetManifestAsync(videoId: youTubeVideoIdTextBox.Text);
 
-			var audioStreamInfo =
-				streamManifest
-				.GetAudioOnlyStreams()
-				.GetWithHighestBitrate()
-				;
+					var audioStreamInfo =
+						streamManifest
+						.GetAudioOnlyStreams()
+						.GetWithHighestBitrate()
+						;
 
-			var videoStreamInfo = streamManifest
-				.GetVideoOnlyStreams()
-				.Where(current => current.Container == YoutubeExplode.Videos.Streams.Container.Mp4)
-				.Where(current => current.VideoQuality.Label == selectedItem.StreamVideoQualityLabel)
-				.Where(current => current.VideoQuality.Framerate == selectedItem.StreamVideoQualityFramerate)
-				.First();
+					var videoStreamInfo = streamManifest
+						.GetVideoOnlyStreams()
+						.Where(current => current.Container.Name == selectedItem.StreamContainerName)
+						.Where(current => current.VideoQuality.Label == selectedItem.StreamVideoQualityLabel)
+						.Where(current => current.VideoQuality.Framerate == selectedItem.StreamVideoQualityFramerate)
+						.First();
 
-			var streamInfos =
-				new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
+					var streamInfos =
+						new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
 
-			var videoFilePathName =
-				$"{targetPathTextBox.Text}\\{selectedItem.GetFileName()}.{selectedItem.StreamContainerName}";
+					var conversionRequestBuilder =
+						new ConversionRequestBuilder(outputFilePath: videoFilePathName);
 
-			var conversionRequestBuilder =
-				new ConversionRequestBuilder(outputFilePath: videoFilePathName);
+					conversionRequestBuilder.SetFFmpegPath(path: ffmpegPathNameTextBox.Text);
 
-			conversionRequestBuilder.SetFFmpegPath(path: ffmpegPathNameTextBox.Text);
+					await youtube.Videos.DownloadAsync
+						(streamInfos: streamInfos, conversionRequestBuilder.Build());
+				}
+			}
 
-			await youtube.Videos.DownloadAsync
-				(streamInfos: streamInfos, conversionRequestBuilder.Build());
-
-			// **************************************************
-			// Download Caption
-			// **************************************************
-			var trackManifest =
-				await
-				youtube.Videos.ClosedCaptions
-				.GetManifestAsync(videoId: youTubeVideoIdTextBox.Text);
-
-			var trackInfo =
-				trackManifest.GetByLanguage(language: "en");
-
-			if (trackInfo is not null)
+			if (downloadCaptionCheckBox.Checked)
 			{
 				var captionFilePathName =
 					$"{targetPathTextBox.Text}\\{selectedItem.GetFileName()}.srt";
 
-				await youtube.Videos.ClosedCaptions.DownloadAsync
-					(trackInfo: trackInfo, filePath: captionFilePathName);
-			}
-			// **************************************************
+				if (File.Exists(path: captionFilePathName))
+				{
+					MessageBox.Show
+						(text: "This caption is already exist!");
+				}
+				else
+				{
+					var trackManifest =
+						await
+						youtube.Videos.ClosedCaptions
+						.GetManifestAsync(videoId: youTubeVideoIdTextBox.Text);
 
-			MessageBox.Show(text: "Finished.");
+					var trackInfo =
+						trackManifest.GetByLanguage(language: "en");
+
+					if (trackInfo is not null)
+					{
+						await youtube.Videos.ClosedCaptions.DownloadAsync
+							(trackInfo: trackInfo, filePath: captionFilePathName);
+					}
+				}
+			}
+
+			MessageBox.Show(text: "Download Finished...");
 		}
 		catch (Exception ex)
 		{
@@ -228,11 +306,20 @@ public partial class MainForm : Form
 			MessageBox.Show(text: errorMessage);
 		}
 
+		// **************************************************
+		videoTitleTextBox.Visible = false;
+
 		detectButton.Enabled = true;
 		downloadButton.Enabled = true;
+
 		myDataGridView.Enabled = true;
+
 		targetPathTextBox.Enabled = true;
 		ffmpegPathNameTextBox.Enabled = true;
 		youTubeVideoIdTextBox.Enabled = true;
+
+		downloadVideoCheckBox.Enabled = true;
+		downloadCaptionCheckBox.Enabled = true;
+		// **************************************************
 	}
 }
