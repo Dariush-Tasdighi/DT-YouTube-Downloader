@@ -157,7 +157,7 @@ internal class YouTubeVideoItem : object
 		var uploadDate = UploadDate.ToString("yyyy_MM_dd");
 
 		var result =
-			$"{AuthorChannelId}_{uploadDate}_{authorChannelTitle}_{title}_{StreamVideoQualityMaxHeight}_{StreamVideoQualityFramerate}";
+			$"{AuthorChannelId}_{uploadDate}_{Id}_{authorChannelTitle}_{title}_{StreamVideoQualityMaxHeight}_{StreamVideoQualityFramerate}";
 
 		return result;
 	}
