@@ -31,6 +31,8 @@ partial class MainForm
 		ffmpegPathNameLabel = new Label();
 		ffmpegPathNameTextBox = new TextBox();
 		headerPanel = new Panel();
+		selectFFMpegPathNameButton = new Button();
+		selectTargetPathButton = new Button();
 		fixAndCheckButton = new Button();
 		logsListBox = new ListBox();
 		myMenuStrip = new MenuStrip();
@@ -61,7 +63,7 @@ partial class MainForm
 		// 
 		targetPathTextBox.Location = new Point(147, 3);
 		targetPathTextBox.Name = "targetPathTextBox";
-		targetPathTextBox.Size = new Size(467, 27);
+		targetPathTextBox.Size = new Size(431, 27);
 		targetPathTextBox.TabIndex = 1;
 		targetPathTextBox.Text = "D:\\YouTubeDownloads";
 		// 
@@ -70,7 +72,7 @@ partial class MainForm
 		youTubeVideoIdTextBox.Location = new Point(147, 69);
 		youTubeVideoIdTextBox.Name = "youTubeVideoIdTextBox";
 		youTubeVideoIdTextBox.Size = new Size(467, 27);
-		youTubeVideoIdTextBox.TabIndex = 5;
+		youTubeVideoIdTextBox.TabIndex = 7;
 		youTubeVideoIdTextBox.TextChanged += YouTubeVideoIdTextBox_TextChanged;
 		youTubeVideoIdTextBox.DoubleClick += YouTubeVideoIdTextBox_DoubleClick;
 		youTubeVideoIdTextBox.Enter += YouTubeVideoIdTextBox_Enter;
@@ -90,7 +92,7 @@ partial class MainForm
 		youTubeVideoIdLabel.Location = new Point(3, 72);
 		youTubeVideoIdLabel.Name = "youTubeVideoIdLabel";
 		youTubeVideoIdLabel.Size = new Size(128, 20);
-		youTubeVideoIdLabel.TabIndex = 4;
+		youTubeVideoIdLabel.TabIndex = 6;
 		youTubeVideoIdLabel.Text = "&YouTube Video ID";
 		// 
 		// detectButton
@@ -98,7 +100,7 @@ partial class MainForm
 		detectButton.Location = new Point(304, 102);
 		detectButton.Name = "detectButton";
 		detectButton.Size = new Size(151, 29);
-		detectButton.TabIndex = 7;
+		detectButton.TabIndex = 9;
 		detectButton.Text = "&2 - Detect";
 		detectButton.UseVisualStyleBackColor = true;
 		detectButton.Click += DetectButton_Click;
@@ -109,19 +111,21 @@ partial class MainForm
 		ffmpegPathNameLabel.Location = new Point(3, 39);
 		ffmpegPathNameLabel.Name = "ffmpegPathNameLabel";
 		ffmpegPathNameLabel.Size = new Size(138, 20);
-		ffmpegPathNameLabel.TabIndex = 2;
+		ffmpegPathNameLabel.TabIndex = 3;
 		ffmpegPathNameLabel.Text = "&FFMpeg Path Name";
 		// 
 		// ffmpegPathNameTextBox
 		// 
 		ffmpegPathNameTextBox.Location = new Point(147, 36);
 		ffmpegPathNameTextBox.Name = "ffmpegPathNameTextBox";
-		ffmpegPathNameTextBox.Size = new Size(467, 27);
-		ffmpegPathNameTextBox.TabIndex = 3;
+		ffmpegPathNameTextBox.Size = new Size(431, 27);
+		ffmpegPathNameTextBox.TabIndex = 4;
 		ffmpegPathNameTextBox.Text = "D:\\Download\\FFMpeg\\ffmpeg-windows-x64\\ffmpeg.exe";
 		// 
 		// headerPanel
 		// 
+		headerPanel.Controls.Add(selectFFMpegPathNameButton);
+		headerPanel.Controls.Add(selectTargetPathButton);
 		headerPanel.Controls.Add(fixAndCheckButton);
 		headerPanel.Controls.Add(logsListBox);
 		headerPanel.Controls.Add(targetPathTextBox);
@@ -137,12 +141,32 @@ partial class MainForm
 		headerPanel.Size = new Size(1432, 138);
 		headerPanel.TabIndex = 1;
 		// 
+		// selectFFMpegPathNameButton
+		// 
+		selectFFMpegPathNameButton.Location = new Point(584, 39);
+		selectFFMpegPathNameButton.Name = "selectFFMpegPathNameButton";
+		selectFFMpegPathNameButton.Size = new Size(30, 24);
+		selectFFMpegPathNameButton.TabIndex = 5;
+		selectFFMpegPathNameButton.Text = "...";
+		selectFFMpegPathNameButton.UseVisualStyleBackColor = true;
+		selectFFMpegPathNameButton.Click += SelectFFMpegPathNameButton_Click;
+		// 
+		// selectTargetPathButton
+		// 
+		selectTargetPathButton.Location = new Point(584, 6);
+		selectTargetPathButton.Name = "selectTargetPathButton";
+		selectTargetPathButton.Size = new Size(30, 24);
+		selectTargetPathButton.TabIndex = 2;
+		selectTargetPathButton.Text = "...";
+		selectTargetPathButton.UseVisualStyleBackColor = true;
+		selectTargetPathButton.Click += SelectTargetPathButton_Click;
+		// 
 		// fixAndCheckButton
 		// 
 		fixAndCheckButton.Location = new Point(147, 102);
 		fixAndCheckButton.Name = "fixAndCheckButton";
 		fixAndCheckButton.Size = new Size(151, 29);
-		fixAndCheckButton.TabIndex = 6;
+		fixAndCheckButton.TabIndex = 8;
 		fixAndCheckButton.Text = "&1 - Fix and Check";
 		fixAndCheckButton.UseVisualStyleBackColor = true;
 		fixAndCheckButton.Click += FixAndCheckButton_Click;
@@ -156,7 +180,7 @@ partial class MainForm
 		logsListBox.Location = new Point(620, 0);
 		logsListBox.Name = "logsListBox";
 		logsListBox.Size = new Size(809, 140);
-		logsListBox.TabIndex = 8;
+		logsListBox.TabIndex = 10;
 		// 
 		// myMenuStrip
 		// 
@@ -173,7 +197,7 @@ partial class MainForm
 		detailsPanel.Location = new Point(0, 162);
 		detailsPanel.Name = "detailsPanel";
 		detailsPanel.Size = new Size(1432, 13);
-		detailsPanel.TabIndex = 1;
+		detailsPanel.TabIndex = 2;
 		// 
 		// footerPanel
 		// 
@@ -185,7 +209,7 @@ partial class MainForm
 		footerPanel.Location = new Point(0, 712);
 		footerPanel.Name = "footerPanel";
 		footerPanel.Size = new Size(1432, 41);
-		footerPanel.TabIndex = 2;
+		footerPanel.TabIndex = 3;
 		// 
 		// downloadCaptionCheckBox
 		// 
@@ -286,4 +310,6 @@ partial class MainForm
 	private CheckBox downloadVideoCheckBox;
 	private ListBox logsListBox;
 	private Button fixAndCheckButton;
+	private Button selectTargetPathButton;
+	private Button selectFFMpegPathNameButton;
 }

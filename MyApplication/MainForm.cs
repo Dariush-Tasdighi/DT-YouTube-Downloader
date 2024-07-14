@@ -13,11 +13,11 @@ public partial class MainForm : Form
 		InitializeComponent();
 	}
 
-	private IList<YouTubeVideoItem> List = [];
+	private IList<YouTubeVideoItem> List { get; set; } = [];
 
 	private void Form_Load(object sender, EventArgs e)
 	{
-		Text = "DT YouTube Downloader! - Version 2.3 - Always! Persian Gulf";
+		Text = "DT YouTube Downloader! - Version 2.4 - Always! Persian Gulf";
 
 		LogInformation(message: "Program Started.");
 
@@ -89,7 +89,8 @@ public partial class MainForm : Form
 
 		var files =
 			directoryInfo
-			.GetFiles(searchPattern: $"*{videoId}*")
+			.GetFiles(searchPattern: $"*{videoId}*",
+			searchOption: SearchOption.AllDirectories)
 			;
 
 		if (files is not null && files.Length > 0)
@@ -358,10 +359,6 @@ public partial class MainForm : Form
 
 	private void DisableControls()
 	{
-		detectButton.Enabled = false;
-		downloadButton.Enabled = false;
-		fixAndCheckButton.Enabled = false;
-
 		myDataGridView.Enabled = false;
 
 		targetPathTextBox.Enabled = false;
@@ -370,14 +367,16 @@ public partial class MainForm : Form
 
 		downloadVideoCheckBox.Enabled = false;
 		downloadCaptionCheckBox.Enabled = false;
+
+		detectButton.Enabled = false;
+		downloadButton.Enabled = false;
+		fixAndCheckButton.Enabled = false;
+		selectTargetPathButton.Enabled = false;
+		selectFFMpegPathNameButton.Enabled = false;
 	}
 
 	private void EnableControls()
 	{
-		detectButton.Enabled = true;
-		downloadButton.Enabled = true;
-		fixAndCheckButton.Enabled = true;
-
 		myDataGridView.Enabled = true;
 
 		targetPathTextBox.Enabled = true;
@@ -386,6 +385,12 @@ public partial class MainForm : Form
 
 		downloadVideoCheckBox.Enabled = true;
 		downloadCaptionCheckBox.Enabled = true;
+
+		detectButton.Enabled = true;
+		downloadButton.Enabled = true;
+		fixAndCheckButton.Enabled = true;
+		selectTargetPathButton.Enabled = true;
+		selectFFMpegPathNameButton.Enabled = true;
 	}
 
 	private bool CheckTargetPath()
@@ -440,5 +445,41 @@ public partial class MainForm : Form
 			$"{GetNow()} - Error! - {exception.Message}";
 
 		logsListBox.Items.Insert(index: 0, item: item);
+	}
+
+	private FolderBrowserDialog MyFolderBrowserDialog { get; set; } = new();
+
+	private void SelectTargetPathButton_Click(object sender, EventArgs e)
+	{
+		MyFolderBrowserDialog.ShowNewFolderButton = true;
+		MyFolderBrowserDialog.InitialDirectory = targetPathTextBox.Text;
+
+		var result =
+			MyFolderBrowserDialog.ShowDialog();
+
+		if (result == DialogResult.OK)
+		{
+			targetPathTextBox.Text =
+				MyFolderBrowserDialog.SelectedPath;
+		}
+	}
+
+	private OpenFileDialog MyOpenFileDialog { get; set; } = new();
+
+	private void SelectFFMpegPathNameButton_Click(object sender, EventArgs e)
+	{
+		MyOpenFileDialog.Multiselect = false;
+		MyOpenFileDialog.CheckFileExists = true;
+		MyOpenFileDialog.CheckPathExists = true;
+		MyOpenFileDialog.InitialDirectory = "D:\\";
+		MyOpenFileDialog.DefaultExt = "Executable Files | *.exe";
+
+		var result =
+			MyOpenFileDialog.ShowDialog();
+
+		if (result == DialogResult.OK)
+		{
+			ffmpegPathNameTextBox.Text = MyOpenFileDialog.FileName;
+		}
 	}
 }
