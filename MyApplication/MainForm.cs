@@ -17,7 +17,7 @@ public partial class MainForm : Form
 
 	private void Form_Load(object sender, EventArgs e)
 	{
-		Text = "DT YouTube Downloader! - Version 2.4 - Always! Persian Gulf";
+		Text = "DT YouTube Downloader! - Version 2.5 - Always! Persian Gulf";
 
 		LogInformation(message: "Program Started.");
 
@@ -70,6 +70,8 @@ public partial class MainForm : Form
 			return;
 		}
 
+		LogInformation(message: $"Fix and check started.");
+
 		FixYouTubeVideoIdTextBox();
 
 		var videoId =
@@ -101,6 +103,8 @@ public partial class MainForm : Form
 		}
 
 		detectButton.Enabled = true;
+
+		LogInformation(message: $"Fix and check finished.");
 	}
 
 	private void FixYouTubeVideoIdTextBox()
@@ -116,16 +120,34 @@ public partial class MainForm : Form
 			//.ToLower() // Never! Video Id & Address is case sensitive!
 			;
 
-		var index =
-			youTubeVideoIdTextBox.Text
-			.ToLower()
-			.IndexOf(value: "&t=");
-
-		if (index != -1)
+		if(youTubeVideoIdTextBox.Text.Contains(value: "&t="))
 		{
-			youTubeVideoIdTextBox.Text =
+			var index =
 				youTubeVideoIdTextBox.Text
-				.Substring(startIndex: 0, length: index);
+				.ToLower()
+				.IndexOf(value: "&t=");
+
+			if (index != -1)
+			{
+				youTubeVideoIdTextBox.Text =
+					youTubeVideoIdTextBox.Text
+					.Substring(startIndex: 0, length: index);
+			}
+		}
+
+		if (youTubeVideoIdTextBox.Text.Contains(value: "&list="))
+		{
+			var index =
+				youTubeVideoIdTextBox.Text
+				.ToLower()
+				.IndexOf(value: "&list=");
+
+			if (index != -1)
+			{
+				youTubeVideoIdTextBox.Text =
+					youTubeVideoIdTextBox.Text
+					.Substring(startIndex: 0, length: index);
+			}
 		}
 	}
 
@@ -395,6 +417,10 @@ public partial class MainForm : Form
 
 	private bool CheckTargetPath()
 	{
+		LogInformation(message: $"Check target path ({targetPathTextBox.Text}) started.");
+
+		bool result;
+
 		try
 		{
 			if (Directory.Exists(path: targetPathTextBox.Text) == false)
@@ -404,14 +430,18 @@ public partial class MainForm : Form
 
 			}
 
-			return true;
+			result = true;
 		}
 		catch (Exception ex)
 		{
 			LogException(exception: ex);
 
-			return false;
+			result = false;
 		}
+
+		LogInformation(message: $"Check target path ({targetPathTextBox.Text}) finished.");
+
+		return result;
 	}
 
 	private static string GetNow()

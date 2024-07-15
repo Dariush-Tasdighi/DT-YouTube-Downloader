@@ -184,6 +184,8 @@ internal class YouTubeVideoItem : object
 			.Replace(oldValue: "/", newValue: " ")
 			.Replace(oldValue: "\"", newValue: " ")
 			.Replace(oldValue: "\\", newValue: " ")
+
+			.Replace(oldValue: "_", newValue: "-")
 			;
 
 		value = value.Trim();
