@@ -17,7 +17,9 @@ public partial class MainForm : Form
 
 	private void Form_Load(object sender, EventArgs e)
 	{
-		Text = "DT YouTube Downloader! - Version 2.5 - Always! Persian Gulf";
+		Text = "DT YouTube Downloader! - Version 2.6 - Always! Persian Gulf";
+
+		downloadingTimer.Tick += DownloadingTimer_Tick;
 
 		LogInformation(message: "Program Started.");
 
@@ -95,16 +97,18 @@ public partial class MainForm : Form
 			searchOption: SearchOption.AllDirectories)
 			;
 
+		detectButton.Enabled = true;
+
 		if (files is not null && files.Length > 0)
 		{
-			LogInformation(message: $"You have been already downloaded the video or caption of {videoId}!");
+			LogInformation(message: $"You have been already downloaded the video / caption of {videoId}!");
 
 			NotifyUserBySound();
 		}
-
-		detectButton.Enabled = true;
-
-		LogInformation(message: $"Fix and check finished.");
+		else
+		{
+			LogInformation(message: $"Fix and check finished.");
+		}
 	}
 
 	private void FixYouTubeVideoIdTextBox()
@@ -120,7 +124,7 @@ public partial class MainForm : Form
 			//.ToLower() // Never! Video Id & Address is case sensitive!
 			;
 
-		if(youTubeVideoIdTextBox.Text.Contains(value: "&t="))
+		if (youTubeVideoIdTextBox.Text.Contains(value: "&t="))
 		{
 			var index =
 				youTubeVideoIdTextBox.Text
@@ -223,6 +227,7 @@ public partial class MainForm : Form
 				{
 					case 1:
 					{
+						myDataGridView.Columns[columnIndex].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 						break;
 					}
 
@@ -254,6 +259,8 @@ public partial class MainForm : Form
 		SystemSounds.Beep.Play();
 	}
 
+	private YouTubeVideoItem? SelectedYouTubeVideoItem { get; set; }
+
 	private async void DownloadButton_Click(object sender, EventArgs e)
 	{
 		// **************************************************
@@ -273,12 +280,18 @@ public partial class MainForm : Form
 		{
 			return;
 		}
+
+		SelectedYouTubeVideoItem = selectedItem;
 		// **************************************************
 
 		DisableControls();
 
 		videoTitleTextBox.Visible = true;
 		videoTitleTextBox.Text = selectedItem.Title;
+
+		downloadingTimer.Enabled = true;
+		downloadingProgressBar.Value = 0;
+		downloadingProgressBar.Visible = true;
 
 		try
 		{
@@ -294,10 +307,12 @@ public partial class MainForm : Form
 			{
 				LogInformation(message: $"{youTubeVideoIdTextBox.Text}: Downloading movie started.");
 
-				var videoFilePathName =
-					$"{targetPathTextBox.Text}\\{selectedItem.GetFileName()}.{selectedItem.StreamContainerName}";
+				var pathName = GetPathName();
 
-				if (File.Exists(path: videoFilePathName))
+				var videoPathNameWithExtension =
+					$"{pathName}.{selectedItem.StreamContainerName}";
+
+				if (File.Exists(path: videoPathNameWithExtension))
 				{
 					LogInformation(message: "This movie is already exist!");
 				}
@@ -325,7 +340,7 @@ public partial class MainForm : Form
 						new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
 
 					var conversionRequestBuilder =
-						new ConversionRequestBuilder(outputFilePath: videoFilePathName);
+						new ConversionRequestBuilder(outputFilePath: videoPathNameWithExtension);
 
 					conversionRequestBuilder.SetFFmpegPath(path: ffmpegPathNameTextBox.Text);
 
@@ -340,10 +355,11 @@ public partial class MainForm : Form
 			{
 				LogInformation(message: $"{youTubeVideoIdTextBox.Text}: Downloading caption started.");
 
-				var captionFilePathName =
-					$"{targetPathTextBox.Text}\\{selectedItem.GetFileName()}.srt";
+				var pathName = GetPathName();
 
-				if (File.Exists(path: captionFilePathName))
+				var captionPathNameWithExtension = $"{pathName}.srt";
+
+				if (File.Exists(path: captionPathNameWithExtension))
 				{
 					LogInformation(message: "This caption is already exist!");
 				}
@@ -360,7 +376,7 @@ public partial class MainForm : Form
 					if (trackInfo is not null)
 					{
 						await youtube.Videos.ClosedCaptions.DownloadAsync
-							(trackInfo: trackInfo, filePath: captionFilePathName);
+							(trackInfo: trackInfo, filePath: captionPathNameWithExtension);
 					}
 
 					LogInformation(message: $"{youTubeVideoIdTextBox.Text}: Downloading caption finished.");
@@ -374,18 +390,111 @@ public partial class MainForm : Form
 
 		EnableControls();
 
+		downloadingTimer.Enabled = false;
 		videoTitleTextBox.Visible = false;
+		downloadingProgressBar.Visible = false;
 
 		NotifyUserBySound();
 	}
 
+	private string GetPathName()
+	{
+		if (SelectedYouTubeVideoItem is null)
+		{
+			LogInformation(message: "Error! - Unexpected Error!");
+			return string.Empty;
+		}
+
+		var result =
+			$"{targetPathTextBox.Text}\\{SelectedYouTubeVideoItem.GetFileName()}";
+
+		return result;
+	}
+
+	private void DownloadingTimer_Tick(object? sender, EventArgs e)
+	{
+		if(SelectedYouTubeVideoItem is null)
+		{
+			return;
+		}
+
+		var pathName = GetPathName();
+
+		var videoPathNameWithExtension =
+			$"{pathName}.{SelectedYouTubeVideoItem.StreamContainerName}";
+
+		var stream0PathNameWithExtension =
+			$"{pathName}.{SelectedYouTubeVideoItem.StreamContainerName}.stream-0.tmp";
+
+		var stream1PathNameWithExtension =
+			$"{pathName}.{SelectedYouTubeVideoItem.StreamContainerName}.stream-1.tmp";
+
+		var totalFileLength =
+			SelectedYouTubeVideoItem.StreamSizeMegaBytes +
+			SelectedYouTubeVideoItem.StreamSizeMegaBytes / (double)3;
+
+		double percent = 0.0;
+
+		if (File.Exists(path: videoPathNameWithExtension))
+		{
+			downloadingProgressBar.ForeColor = Color.Blue;
+
+			var fileInfo =
+				new FileInfo(fileName: videoPathNameWithExtension);
+
+			var currentFileLength =
+				(double)fileInfo.Length / (double)(1024 * 1024);
+
+			percent =
+				((double)100 * currentFileLength) / totalFileLength;
+		}
+		else
+		{
+			downloadingProgressBar.ForeColor = Color.Yellow;
+
+			double currentFilesLength = 0.0;
+
+			if (File.Exists(path: stream0PathNameWithExtension))
+			{
+				var fileInfo =
+					new FileInfo(fileName: stream0PathNameWithExtension);
+
+				var currentFileLength =
+					(double)fileInfo.Length / (double)(1024 * 1024);
+
+				currentFilesLength += currentFileLength;
+			}
+
+			if (File.Exists(path: stream1PathNameWithExtension))
+			{
+				var fileInfo =
+					new FileInfo(fileName: stream1PathNameWithExtension);
+
+				var currentFileLength =
+					(double)fileInfo.Length / (double)(1024 * 1024);
+
+				currentFilesLength += currentFileLength;
+			}
+
+			percent =
+				((double)100 * currentFilesLength) / totalFileLength;
+		}
+
+		if (percent > 100)
+		{
+			percent = 100;
+		}
+
+		downloadingProgressBar.Value = Convert.ToInt32(percent);
+	}
+
 	private void DisableControls()
 	{
-		myDataGridView.Enabled = false;
+		myDataGridView.ReadOnly = true;
 
-		targetPathTextBox.Enabled = false;
-		youTubeVideoIdTextBox.Enabled = false;
-		ffmpegPathNameTextBox.Enabled = false;
+		targetPathTextBox.ReadOnly = true;
+		youTubeVideoIdTextBox.ReadOnly = true;
+		ffmpegPathNameTextBox.ReadOnly = true;
 
 		downloadVideoCheckBox.Enabled = false;
 		downloadCaptionCheckBox.Enabled = false;
@@ -399,11 +508,11 @@ public partial class MainForm : Form
 
 	private void EnableControls()
 	{
-		myDataGridView.Enabled = true;
+		myDataGridView.ReadOnly = false;
 
-		targetPathTextBox.Enabled = true;
-		youTubeVideoIdTextBox.Enabled = true;
-		ffmpegPathNameTextBox.Enabled = true;
+		targetPathTextBox.ReadOnly = false;
+		youTubeVideoIdTextBox.ReadOnly = false;
+		ffmpegPathNameTextBox.ReadOnly = false;
 
 		downloadVideoCheckBox.Enabled = true;
 		downloadCaptionCheckBox.Enabled = true;
@@ -444,19 +553,10 @@ public partial class MainForm : Form
 		return result;
 	}
 
-	private static string GetNow()
-	{
-		var result =
-			DateTime.Now.ToString
-			(format: "yyyy/mm/dd - HH:mm:ss");
-
-		return result;
-	}
-
 	public void LogInformation(string message)
 	{
 		var item =
-			$"{GetNow()} - {message}";
+			$"{Utility.GetNow()} - {message}";
 
 		logsListBox.Items.Insert(index: 0, item: item);
 	}
@@ -472,7 +572,7 @@ public partial class MainForm : Form
 		}
 
 		var item =
-			$"{GetNow()} - Error! - {exception.Message}";
+			$"{Utility.GetNow()} - Error! - {exception.Message}";
 
 		logsListBox.Items.Insert(index: 0, item: item);
 	}

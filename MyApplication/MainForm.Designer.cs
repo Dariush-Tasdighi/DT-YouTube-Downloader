@@ -22,6 +22,7 @@ partial class MainForm
 	/// </summary>
 	private void InitializeComponent()
 	{
+		components = new System.ComponentModel.Container();
 		downloadButton = new Button();
 		targetPathTextBox = new TextBox();
 		youTubeVideoIdTextBox = new TextBox();
@@ -43,6 +44,8 @@ partial class MainForm
 		videoTitleTextBox = new TextBox();
 		gridViewPanel = new Panel();
 		myDataGridView = new DataGridView();
+		downloadingProgressBar = new ProgressBar();
+		downloadingTimer = new System.Windows.Forms.Timer(components);
 		headerPanel.SuspendLayout();
 		footerPanel.SuspendLayout();
 		gridViewPanel.SuspendLayout();
@@ -201,6 +204,7 @@ partial class MainForm
 		// 
 		// footerPanel
 		// 
+		footerPanel.Controls.Add(downloadingProgressBar);
 		footerPanel.Controls.Add(downloadCaptionCheckBox);
 		footerPanel.Controls.Add(downloadVideoCheckBox);
 		footerPanel.Controls.Add(videoTitleTextBox);
@@ -241,7 +245,7 @@ partial class MainForm
 		videoTitleTextBox.Location = new Point(334, 6);
 		videoTitleTextBox.Name = "videoTitleTextBox";
 		videoTitleTextBox.ReadOnly = true;
-		videoTitleTextBox.Size = new Size(1086, 27);
+		videoTitleTextBox.Size = new Size(709, 27);
 		videoTitleTextBox.TabIndex = 3;
 		videoTitleTextBox.Visible = false;
 		// 
@@ -263,6 +267,19 @@ partial class MainForm
 		myDataGridView.RowHeadersWidth = 51;
 		myDataGridView.Size = new Size(1432, 537);
 		myDataGridView.TabIndex = 0;
+		// 
+		// downloadingProgressBar
+		// 
+		downloadingProgressBar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+		downloadingProgressBar.Location = new Point(1049, 6);
+		downloadingProgressBar.Name = "downloadingProgressBar";
+		downloadingProgressBar.Size = new Size(380, 29);
+		downloadingProgressBar.Step = 1;
+		downloadingProgressBar.TabIndex = 4;
+		// 
+		// downloadingTimer
+		// 
+		downloadingTimer.Interval = 1000;
 		// 
 		// MainForm
 		// 
@@ -312,4 +329,6 @@ partial class MainForm
 	private Button fixAndCheckButton;
 	private Button selectTargetPathButton;
 	private Button selectFFMpegPathNameButton;
+	private ProgressBar downloadingProgressBar;
+	private System.Windows.Forms.Timer downloadingTimer;
 }
