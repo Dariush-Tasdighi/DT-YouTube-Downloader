@@ -17,7 +17,7 @@ public partial class MainForm : Form
 
 	private void Form_Load(object sender, EventArgs e)
 	{
-		Text = "DT YouTube Downloader! - Version 2.6 - Always! Persian Gulf";
+		Text = "DT YouTube Downloader! - Version 2.7 - Always! Persian Gulf";
 
 		downloadingTimer.Tick += DownloadingTimer_Tick;
 
@@ -437,7 +437,7 @@ public partial class MainForm : Form
 
 		if (File.Exists(path: videoPathNameWithExtension))
 		{
-			downloadingProgressBar.ForeColor = Color.Blue;
+			//downloadingProgressBar.ForeColor = Color.Blue;
 
 			var fileInfo =
 				new FileInfo(fileName: videoPathNameWithExtension);
@@ -450,7 +450,7 @@ public partial class MainForm : Form
 		}
 		else
 		{
-			downloadingProgressBar.ForeColor = Color.Yellow;
+			//downloadingProgressBar.ForeColor = Color.Yellow;
 
 			double currentFilesLength = 0.0;
 
