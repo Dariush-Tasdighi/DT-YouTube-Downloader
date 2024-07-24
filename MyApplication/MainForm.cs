@@ -17,7 +17,7 @@ public partial class MainForm : Form
 
 	private void Form_Load(object sender, EventArgs e)
 	{
-		Text = "DT YouTube Downloader! - Version 2.7 - Always! Persian Gulf";
+		Text = "DT YouTube Downloader! - Version 2.9 - Always! Persian Gulf";
 
 		downloadingTimer.Tick += DownloadingTimer_Tick;
 
@@ -239,6 +239,8 @@ public partial class MainForm : Form
 				}
 			}
 
+			myDataGridView.Columns[4].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+
 			LogInformation(message: $"{youTubeVideoIdTextBox.Text}: Detection finished.");
 
 			myDataGridView.Rows[0].Selected = true;
@@ -292,6 +294,7 @@ public partial class MainForm : Form
 		downloadingTimer.Enabled = true;
 		downloadingProgressBar.Value = 0;
 		downloadingProgressBar.Visible = true;
+		downloadingStatusTextBox.Visible = true;
 
 		try
 		{
@@ -393,6 +396,7 @@ public partial class MainForm : Form
 		downloadingTimer.Enabled = false;
 		videoTitleTextBox.Visible = false;
 		downloadingProgressBar.Visible = false;
+		downloadingStatusTextBox.Visible = false;
 
 		NotifyUserBySound();
 	}
@@ -413,7 +417,7 @@ public partial class MainForm : Form
 
 	private void DownloadingTimer_Tick(object? sender, EventArgs e)
 	{
-		if(SelectedYouTubeVideoItem is null)
+		if (SelectedYouTubeVideoItem is null)
 		{
 			return;
 		}
@@ -435,9 +439,11 @@ public partial class MainForm : Form
 
 		double percent = 0.0;
 
+		string downloadingStatus;
+
 		if (File.Exists(path: videoPathNameWithExtension))
 		{
-			//downloadingProgressBar.ForeColor = Color.Blue;
+			downloadingStatus = "Merging";
 
 			var fileInfo =
 				new FileInfo(fileName: videoPathNameWithExtension);
@@ -450,7 +456,7 @@ public partial class MainForm : Form
 		}
 		else
 		{
-			//downloadingProgressBar.ForeColor = Color.Yellow;
+			downloadingStatus = "Downloading";
 
 			double currentFilesLength = 0.0;
 
@@ -485,7 +491,11 @@ public partial class MainForm : Form
 			percent = 100;
 		}
 
-		downloadingProgressBar.Value = Convert.ToInt32(percent);
+		int percentInt =
+			Convert.ToInt32(percent);
+
+		downloadingProgressBar.Value = percentInt;
+		downloadingStatusTextBox.Text = $"{downloadingStatus}: {percentInt}%";
 	}
 
 	private void DisableControls()
@@ -602,7 +612,7 @@ public partial class MainForm : Form
 		MyOpenFileDialog.CheckFileExists = true;
 		MyOpenFileDialog.CheckPathExists = true;
 		MyOpenFileDialog.InitialDirectory = "D:\\";
-		MyOpenFileDialog.DefaultExt = "Executable Files | *.exe";
+		MyOpenFileDialog.Filter = "Executable Files|*.exe|All Files|*.*";
 
 		var result =
 			MyOpenFileDialog.ShowDialog();

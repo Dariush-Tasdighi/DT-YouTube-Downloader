@@ -39,12 +39,13 @@ partial class MainForm
 		myMenuStrip = new MenuStrip();
 		detailsPanel = new Panel();
 		footerPanel = new Panel();
+		downloadingStatusTextBox = new TextBox();
+		downloadingProgressBar = new ProgressBar();
 		downloadCaptionCheckBox = new CheckBox();
 		downloadVideoCheckBox = new CheckBox();
 		videoTitleTextBox = new TextBox();
 		gridViewPanel = new Panel();
 		myDataGridView = new DataGridView();
-		downloadingProgressBar = new ProgressBar();
 		downloadingTimer = new System.Windows.Forms.Timer(components);
 		headerPanel.SuspendLayout();
 		footerPanel.SuspendLayout();
@@ -204,23 +205,43 @@ partial class MainForm
 		// 
 		// footerPanel
 		// 
+		footerPanel.Controls.Add(downloadingStatusTextBox);
 		footerPanel.Controls.Add(downloadingProgressBar);
 		footerPanel.Controls.Add(downloadCaptionCheckBox);
 		footerPanel.Controls.Add(downloadVideoCheckBox);
 		footerPanel.Controls.Add(videoTitleTextBox);
 		footerPanel.Controls.Add(downloadButton);
 		footerPanel.Dock = DockStyle.Bottom;
-		footerPanel.Location = new Point(0, 712);
+		footerPanel.Location = new Point(0, 707);
 		footerPanel.Name = "footerPanel";
-		footerPanel.Size = new Size(1432, 41);
+		footerPanel.Size = new Size(1432, 46);
 		footerPanel.TabIndex = 3;
+		// 
+		// downloadingStatusTextBox
+		// 
+		downloadingStatusTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+		downloadingStatusTextBox.Location = new Point(913, 6);
+		downloadingStatusTextBox.Name = "downloadingStatusTextBox";
+		downloadingStatusTextBox.ReadOnly = true;
+		downloadingStatusTextBox.Size = new Size(147, 27);
+		downloadingStatusTextBox.TabIndex = 4;
+		downloadingStatusTextBox.Visible = false;
+		// 
+		// downloadingProgressBar
+		// 
+		downloadingProgressBar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+		downloadingProgressBar.Location = new Point(1066, 6);
+		downloadingProgressBar.Name = "downloadingProgressBar";
+		downloadingProgressBar.Size = new Size(354, 29);
+		downloadingProgressBar.Step = 1;
+		downloadingProgressBar.TabIndex = 5;
 		// 
 		// downloadCaptionCheckBox
 		// 
 		downloadCaptionCheckBox.AutoSize = true;
 		downloadCaptionCheckBox.Checked = true;
 		downloadCaptionCheckBox.CheckState = CheckState.Checked;
-		downloadCaptionCheckBox.Location = new Point(88, 8);
+		downloadCaptionCheckBox.Location = new Point(88, 9);
 		downloadCaptionCheckBox.Name = "downloadCaptionCheckBox";
 		downloadCaptionCheckBox.Size = new Size(83, 24);
 		downloadCaptionCheckBox.TabIndex = 1;
@@ -232,7 +253,7 @@ partial class MainForm
 		downloadVideoCheckBox.AutoSize = true;
 		downloadVideoCheckBox.Checked = true;
 		downloadVideoCheckBox.CheckState = CheckState.Checked;
-		downloadVideoCheckBox.Location = new Point(12, 8);
+		downloadVideoCheckBox.Location = new Point(12, 9);
 		downloadVideoCheckBox.Name = "downloadVideoCheckBox";
 		downloadVideoCheckBox.Size = new Size(70, 24);
 		downloadVideoCheckBox.TabIndex = 0;
@@ -245,7 +266,7 @@ partial class MainForm
 		videoTitleTextBox.Location = new Point(334, 6);
 		videoTitleTextBox.Name = "videoTitleTextBox";
 		videoTitleTextBox.ReadOnly = true;
-		videoTitleTextBox.Size = new Size(709, 27);
+		videoTitleTextBox.Size = new Size(573, 27);
 		videoTitleTextBox.TabIndex = 3;
 		videoTitleTextBox.Visible = false;
 		// 
@@ -255,7 +276,7 @@ partial class MainForm
 		gridViewPanel.Dock = DockStyle.Fill;
 		gridViewPanel.Location = new Point(0, 175);
 		gridViewPanel.Name = "gridViewPanel";
-		gridViewPanel.Size = new Size(1432, 537);
+		gridViewPanel.Size = new Size(1432, 532);
 		gridViewPanel.TabIndex = 13;
 		// 
 		// myDataGridView
@@ -265,17 +286,8 @@ partial class MainForm
 		myDataGridView.Location = new Point(0, 0);
 		myDataGridView.Name = "myDataGridView";
 		myDataGridView.RowHeadersWidth = 51;
-		myDataGridView.Size = new Size(1432, 537);
+		myDataGridView.Size = new Size(1432, 532);
 		myDataGridView.TabIndex = 0;
-		// 
-		// downloadingProgressBar
-		// 
-		downloadingProgressBar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-		downloadingProgressBar.Location = new Point(1049, 6);
-		downloadingProgressBar.Name = "downloadingProgressBar";
-		downloadingProgressBar.Size = new Size(380, 29);
-		downloadingProgressBar.Step = 1;
-		downloadingProgressBar.TabIndex = 4;
 		// 
 		// downloadingTimer
 		// 
@@ -331,4 +343,5 @@ partial class MainForm
 	private Button selectFFMpegPathNameButton;
 	private ProgressBar downloadingProgressBar;
 	private System.Windows.Forms.Timer downloadingTimer;
+	private TextBox downloadingStatusTextBox;
 }

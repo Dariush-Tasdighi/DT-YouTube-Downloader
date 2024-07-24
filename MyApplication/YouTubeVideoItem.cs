@@ -69,17 +69,40 @@ internal class YouTubeVideoItem : object
 	[DisplayName(displayName: "Format")]
 	public string? StreamContainerName { get; set; }
 
-	[DisplayName(displayName: "Quality")]
+	[Browsable(browsable: false)]
 	public int StreamVideoQualityMaxHeight { get; set; }
 
-	[DisplayName(displayName: "Framerate")]
+	[Browsable(browsable: false)]
 	public int StreamVideoQualityFramerate { get; set; }
 
-	[DisplayName(displayName: "Width")]
+	[DisplayName(displayName: "Quality")]
+	public string DisplayQualityAndFramerate
+	{
+		get
+		{
+			var result =
+				$"{StreamVideoQualityMaxHeight}p{StreamVideoQualityFramerate}";
+
+			return result;
+		}
+	}
+
+	[Browsable(browsable: false)]
 	public int StreamVideoResolutionWidth { get; set; }
 
-	[DisplayName(displayName: "Height")]
+	[Browsable(browsable: false)]
 	public int StreamVideoResolutionHeight { get; set; }
+
+	public string Resolution
+	{
+		get
+		{
+			var result =
+				$"{StreamVideoResolutionWidth} ꭓ {StreamVideoResolutionHeight}";
+
+			return result;
+		}
+	}
 
 	[DisplayName(displayName: "High Definition")]
 	public bool StreamVideoQualityIsHighDefinition { get; set; }
