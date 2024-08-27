@@ -196,6 +196,7 @@ internal class YouTubeVideoItem : object
 			value
 			.Replace(oldValue: "،", newValue: " ")
 			.Replace(oldValue: "؟", newValue: " ")
+			.Replace(oldValue: "*", newValue: " ")
 
 			.Replace(oldValue: "'", newValue: " ")
 			.Replace(oldValue: "!", newValue: " ")

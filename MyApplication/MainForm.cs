@@ -17,7 +17,7 @@ public partial class MainForm : Form
 
 	private void Form_Load(object sender, EventArgs e)
 	{
-		Text = "DT YouTube Downloader! - Version 2.9 - Always! Persian Gulf";
+		Text = "DT YouTube Downloader! - Version 3.1 - Always! Persian Gulf";
 
 		downloadingTimer.Tick += DownloadingTimer_Tick;
 
