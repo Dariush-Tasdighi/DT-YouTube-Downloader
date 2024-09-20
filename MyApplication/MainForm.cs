@@ -17,7 +17,7 @@ public partial class MainForm : Form
 
 	private void Form_Load(object sender, EventArgs e)
 	{
-		Text = "DT YouTube Downloader! - Version 3.1 - Always! Persian Gulf";
+		Text = "DT YouTube Downloader! - Version 3.2 - Always! Persian Gulf";
 
 		downloadingTimer.Tick += DownloadingTimer_Tick;
 
@@ -221,7 +221,7 @@ public partial class MainForm : Form
 				.ToList()
 				;
 
-			for (int columnIndex = 0; columnIndex <= myDataGridView.Columns.Count - 1; columnIndex++)
+			for (var columnIndex = 0; columnIndex <= myDataGridView.Columns.Count - 1; columnIndex++)
 			{
 				switch (columnIndex)
 				{
