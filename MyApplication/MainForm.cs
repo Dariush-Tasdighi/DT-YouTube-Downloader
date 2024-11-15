@@ -17,7 +17,7 @@ public partial class MainForm : Form
 
 	private void Form_Load(object sender, EventArgs e)
 	{
-		Text = "DT YouTube Downloader! - Version 3.4 - Always! Persian Gulf";
+		Text = "DT YouTube Downloader! - Version 3.5 - Always! Persian Gulf";
 
 		downloadingTimer.Tick += DownloadingTimer_Tick;
 
@@ -81,6 +81,8 @@ public partial class MainForm : Form
 			.ToLower()
 			.Replace(oldValue: "https://youtube.com/watch?v=", newValue: string.Empty)
 			.Replace(oldValue: "https://www.youtube.com/watch?v=", newValue: string.Empty)
+			.Replace(oldValue: "https://youtube.com/watch?app=desktop&v=", newValue: string.Empty)
+			.Replace(oldValue: "https://www.youtube.com/watch?app=desktop&v=", newValue: string.Empty)
 			;
 
 		if (videoId.Length != 11)
@@ -113,7 +115,7 @@ public partial class MainForm : Form
 
 	private void FixYouTubeVideoIdTextBox()
 	{
-		if (string.IsNullOrEmpty(youTubeVideoIdTextBox.Text))
+		if (string.IsNullOrEmpty(value: youTubeVideoIdTextBox.Text))
 		{
 			return;
 		}
@@ -121,6 +123,7 @@ public partial class MainForm : Form
 		youTubeVideoIdTextBox.Text =
 			youTubeVideoIdTextBox.Text
 			.Trim()
+			.Replace(oldValue: "app=desktop&", newValue: string.Empty)
 			//.ToLower() // Never! Video Id & Address is case sensitive!
 			;
 
